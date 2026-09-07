@@ -39,9 +39,9 @@ UL.95 <- function(x) t.test(x)$conf.int[2]
 # anc$Time <- as.numeric(sub("^(\\d+):(\\d+).*", "\\1.\\2", anc$Time))
 
 dat <- read.csv("~/Github/SporeMut/code/4.GrowthCurves/data/20230802_GrowthCurve_SporeMut.csv")
-dat$Time <- as.numeric(sub("^(\\d+):(\\d+).*", "\\1.\\2", dat.raw$Time))
+dat$Time <- as.numeric(sub("^(\\d+):(\\d+).*", "\\1.\\2", dat$Time))
 # filter so length of data is equal across strains
-dat <- dat.raw %>% 
+dat <- dat %>% 
  filter(row_number() <= 93) 
 ```
 
@@ -152,8 +152,6 @@ M79 <- fits <-growth.modGomp(input = M79, output.name = "M79.fit.parms",
         synergy = F, temp = F, smooth = T, trim = T)
 M79.fits.out <- read.table("../output/M79.fit.parms.txt", sep = ",", header = TRUE)
 
-
-
 # Combine fits for each strain and replicate
 all.fits <- rbind(anc.fits.out, S1.fits.out, S6.fits.out, S11.fits.out, 
             S22.fits.out, S51.fits.out, S95.fits.out, M4.fits.out,
@@ -163,11 +161,25 @@ all.fits <- rbind(anc.fits.out, S1.fits.out, S6.fits.out, S11.fits.out,
 
 # Combine fits with strain and treatment information (e.g, cell type, mutations, etc.)
 treats <- read.csv("../data/treatments.csv")
-parms <- data.frame(treats, all.fits) # this doesn't work, probably because some of the fits didn't converge?
+
+# Identify missing rows in all.fits not found in treats
+treats$strainID[!treats$strainID %in% all.fits$Curve]
+# "A_3"   "S22_5" "S95_3" "S95_5"
+
+parms <- merge(treats, all.fits,
+               by.x = "strainID",
+               by.y = "Curve",
+               all.x = TRUE)
+# Replicates with mising values:
+#parms[parms$strainID %in% c("A_3", "S22_5", "S95_3", "S95_5"), ]
+
+# Remove NA from parms
+parms <- na.omit(parms)
+
 head(parms)
 
 #fits.anc <- growth.modGomp(input = anc, output.name = "fit.anc.parms",
-#        synergy = F, temp = F, smooth = T, trim = T)
+        synergy = F, temp = F, smooth = T, trim = T)
 #fits.anc.out <- read.table("../output/fit.anc.parms.txt", sep = ",", header = TRUE)
 #treat.anc <- read.csv("../data/treatments.anc.csv")
 #anc.parms <- data.frame(treat.anc, fits.anc.out)
