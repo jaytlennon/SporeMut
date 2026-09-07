@@ -1330,7 +1330,7 @@ Kdist <- ggplot(distK_data_long, aes(y = as.numeric(clones), x = dists, group = 
                                          breaks = 1:length(clone),
                                          labels = clones))
  
-ggsave("Kjags_dist.pdf", Kdist, width = 5, height = 6)
+ggsave("Kjags_dist.pdf", Kdist, width = 5, height = 5)
   
 
 # lag
@@ -1399,7 +1399,7 @@ Ldist <- ggplot(distL_data_long, aes(y = as.numeric(clones), x = dists, group = 
                            fill = 0.5 - abs(0.5 - stat(ecdf))))+
    geom_vline(xintercept = 1, color = "grey25", linetype = "dashed")+
   stat_density_ridges(geom = "density_ridges_gradient", calc_ecdf = TRUE, 
-                      rel_min_height = 0.005, alpha = 0.5, scale = 2, color = "grey25" )+
+                      rel_min_height = 0.005, alpha = 0.5, scale = 0.6, color = "grey25" )+
   theme(axis.title.y = element_blank())+
   
   xlab("Relative lag time")+
@@ -1416,21 +1416,9 @@ Ldist <- ggplot(distL_data_long, aes(y = as.numeric(clones), x = dists, group = 
                                          labels = clones))
  
 
-ggsave("lag_jags_dist.pdf", Kdist, width = 5, height = 6)
+ggsave("lag_jags_dist.pdf", Ldist, width = 5, height = 5)
 
-
- 
-  xlab("Relative yield")+
-  scale_x_continuous(limits = c(0, 3), )+
-  mytheme+
-   theme(legend.position = c(.9,.8))+
-   theme(axis.title.y = element_blank())+
-   scale_fill_gradient(low = "white", high = "grey50",
-                      name = "Tail prob.")+
- scale_y_continuous(breaks = 1:length(clone),
-
-  
-```
+  ```
 
 ## Coefficients - Bayes version - Don - Overwrites some of the previous variables
 ```{r}

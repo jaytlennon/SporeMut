@@ -314,7 +314,6 @@ curve(coef(fit.t)[[2]] + (coef(fit.t)[[1]] - coef(fit.t)[[2]]) /
         (1 + exp((coef(fit.t)[[3]] - x) / coef(fit.t)[[4]])), 
       from = -0.24, to = 3.05, add = TRUE, lty = 2, lwd = 2.5, col = "black") 
 
-
 # plot vegetative and spore abundance
 #par(xpd = NA)
 plot(log10(data.all$time), log10(data.all$veg), pch = 21, 
@@ -434,15 +433,36 @@ theme(axis.text.x.top = element_blank(), axis.title.x.top = element_blank(),
    axis.text.x = element_text(margin=margin(10,0,0,0)),
    axis.text.y = element_text(margin=margin(0,10,0,0)))
 
+
+# Don's fix suggestion - from the emails 
+
+# Initial parameters
+
+L = 5.5 # Minimum (log10)
+U = 7.9 # Maximum (log10)
+M = 2 # Midpoint 
+R = 0.16 # Slope
+Z = 0.2 # Error
+
+L2 = 6# Minimum (log10)
+U2 = 6# Minimum (log10)
+
+fit.v2 <- mle2(log10(veg) ~ dnorm(mean = l + (u - l) / (1 + exp(-r*(m - time))), sd = z), start = list(l = L, u = U, m = M, r = R, z = Z), data = data.all) 
+
+
+fit.s2 <- mle2(log10(spore) ~ dnorm(mean = l + (u - l) / (1 + exp(-r*(m - time))), sd = z),
+            start = list(l = L2, u = U2, m = M, r = R, z = Z), data = data.all) 
+
+
 # predict new data to plot the curves 
-predicted_v <- data.frame(curve = 10^predict(fit.v, data.all), time=data.all$time)
-predicted_s <- data.frame(curve = 10^predict(fit.s, data.all), time=data.all$time)
+predicted_v2 <- data.frame(curve = 10^predict(fit.v2, data.all), time=data.all$time)
+predicted_s2 <- data.frame(curve = 10^predict(fit.s2, data.all), time=data.all$time)
 
 pop_dyn <- ggplot(data.all, aes(x = time, y = spore))+
   geom_point(aes(color = "grey25"), alpha = 0.4, size = 3)+
   geom_point(aes(x = time, y = veg, color = "grey75"), size = 3, alpha = 0.4)+
-  geom_line(data = predicted_v, aes(y=curve, x = time), color = "grey15", linewidth = 1, linetype = "dashed")+
-  geom_line(data = predicted_s, aes(y=curve, x = time), color = "grey85", linewidth = 1, linetype = "dashed")+
+  geom_line(data = predicted_v2, aes(y=curve, x = time), color = "grey15", linewidth = 1, linetype = "dashed")+
+  geom_line(data = predicted_s2, aes(y=curve, x = time), color = "grey85", linewidth = 1, linetype = "dashed")+
   mytheme+
   scale_x_continuous(sec.axis=dup_axis(), trans="log10",oob = scales::squish_infinite)+
   labs(y = expression(paste("Bacteria (CFU ml"^-1,")")), x = "Time (d)")+
@@ -451,7 +471,7 @@ scale_color_identity(guide = "legend",
                         breaks = c("grey25", "grey75"),
                         labels = c("Spore", "Non-spore"))+
   theme(legend.position = c(.8,.8))
-ggsave("populationDynamics.pdf", pop_dyn, height = 4, width = 5)
+ggsave("populationDynamics_newMod.pdf", pop_dyn, height = 4, width = 5)
 
 ```
 
